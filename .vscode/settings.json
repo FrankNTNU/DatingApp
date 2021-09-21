@@ -1,5 +1,9 @@
 {
   "csharpextensions.privateMemberPrefix": "_",
   "csharpextensions.useThisForCtorAssignments": false,
-  "prettier.jsxBracketSameLine": true
+  "prettier.jsxBracketSameLine": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
