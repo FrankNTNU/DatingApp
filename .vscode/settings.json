@@ -1,4 +1,5 @@
 {
   "csharpextensions.privateMemberPrefix": "_",
-  "csharpextensions.useThisForCtorAssignments": false
+  "csharpextensions.useThisForCtorAssignments": false,
+  "prettier.jsxBracketSameLine": true
 }
