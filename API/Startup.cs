@@ -39,7 +39,9 @@ namespace API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
-            services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200")));
+            services.AddCors(
+                options => options.AddDefaultPolicy(
+                    policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200")));
             services.AddIdentityServices(_config);
         }
 
@@ -54,7 +56,7 @@ namespace API
             // }
 
             app.UseMiddleware<ExceptionMiddleware>();
-            
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
