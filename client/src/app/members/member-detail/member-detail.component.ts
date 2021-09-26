@@ -12,7 +12,7 @@ import { NgxGalleryAnimation } from '@kolkov/ngx-gallery';
   styleUrls: ['./member-detail.component.css'],
 })
 export class MemberDetailComponent implements OnInit {
-  member!: Member;
+  member: Member;
   galleryOptions: NgxGalleryOptions[] = [];
   galleryImages: NgxGalleryImage[] = [];
 
