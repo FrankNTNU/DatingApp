@@ -67,13 +67,6 @@ export class MembersService {
     );
   }
 
-  private getPaginationHeader(pageNumber: number, pageSize: number) {
-    let params = new HttpParams();
-    params = params.append('pageNumber', pageNumber.toString());
-    params = params.append('pageSize', pageSize.toString());
-    return params;
-  }
-
   getMember(username: string) {
     const member = [...this.memberCache.values()] // an arrays of paginatedResut (which is another array)
       .reduce((arr, elem) => arr.concat(elem.result), []) // to flatten the array
@@ -101,8 +94,27 @@ export class MembersService {
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
   }
 
+  addLike(username: string) {
+    return this.http.post(this.baseUrl + 'likes/' + username, {});
+  }
+
+  getLikes(predicate: string, pageNumber: number, pageSize: number) {
+    let params = this.getPaginationHeader(pageNumber, pageSize);
+    params = params.append('predicate', predicate);
+
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'likes', params);
+  }
+
+  private getPaginationHeader(pageNumber: number, pageSize: number) {
+    let params = new HttpParams();
+    params = params.append('pageNumber', pageNumber.toString());
+    params = params.append('pageSize', pageSize.toString());
+    return params;
+  }
+
   private getPaginatedResult<T>(url: string, params: HttpParams) {
     const paginatedResult: PaginatedResult<T> = new PaginatedResult<T>();
+    console.log('params before sent', params);
     return this.http.get<T>(url, { observe: 'response', params }).pipe(
       map((response) => {
         paginatedResult.result = response.body!;

@@ -24,6 +24,7 @@ export class ErrorInterceptor implements HttpInterceptor {
             case 400:
               const errorCollections: [] = error.error.errors;
               if (errorCollections) {
+                // when there is a collection of errors
                 const modalStateErrors: any[] = [];
                 for (const key in errorCollections) {
                   if (errorCollections[key]) {
@@ -31,8 +32,12 @@ export class ErrorInterceptor implements HttpInterceptor {
                   }
                 }
                 throw modalStateErrors.flat(); // flatten a nested array
-              } else {
+              } else if (typeof error.error === 'object') {
+                // an error object
                 this.toastr.error(error.statusText, error.status);
+              } else {
+                // an error message
+                this.toastr.error(error.error, error.status);
               }
               break;
             case 401:
