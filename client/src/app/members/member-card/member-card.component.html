@@ -16,7 +16,11 @@
         <button class="btn btn-primary mx-1" (click)="addLike(member)">
           <i class="fa fa-heart"></i>
         </button>
-        <button class="btn btn-primary mx-1">
+        <button
+          class="btn btn-primary mx-1"
+          routerLink="/members/{{ member.username }}"
+          [queryParams]="{ tab: 3 }"
+        >
           <i class="fa fa-envelope"></i>
         </button>
       </li>
