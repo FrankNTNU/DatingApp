@@ -4,7 +4,7 @@
       Dating App
     </a>
     <ul class="navbar-nav mr-auto">
-      <ng-container *ngIf="accountService.currentUser$| async">
+      <ng-container *ngIf="accountService.currentUser$ | async">
         <li class="nav-item">
           <a class="nav-link" routerLink="/members" routerLinkActive="active">
             Matches
@@ -20,6 +20,11 @@
             Messages
           </a>
         </li>
+        <li class="nav-item" *appHasRole="['Admin', 'Moderator']">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">
+            Admin
+          </a>
+        </li>
       </ng-container>
       <li class="nav-item">
         <a class="nav-link" routerLink="/errors" routerLinkActive="active">
@@ -32,9 +37,12 @@
       *ngIf="accountService.currentUser$ | async as user"
       dropdown
     >
-      <img src="{{ user.photoUrl || './assets/user.png' }}" alt="{{ user.username }}" />
+      <img
+        src="{{ user.photoUrl || './assets/user.png' }}"
+        alt="{{ user.username }}"
+      />
       <a class="dropdown-toggle text-light ml-2" dropdownToggle>
-        Welcome {{ user.knownAs | titlecase }}
+        Welcome {{ user.knownAs || user.username | titlecase }}
       </a>
       <div class="dropdown-menu mt-2" *dropdownMenu>
         <a class="dropdown-item" routerLink="/member/edit">Edit Profile</a>
