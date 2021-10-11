@@ -14,6 +14,8 @@ namespace API.Data
         }
         public DbSet<UserLike> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Connection> Connections { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -33,7 +35,7 @@ namespace API.Data
                    .HasKey(k => new { k.SourceUserId, k.LikedUserId }); // set the primary keys
 
             builder.Entity<UserLike>()
-                   .HasOne(s => s.SourceUser) 
+                   .HasOne(s => s.SourceUser)
                    .WithMany(l => l.LikedUsers) // one user has many likedByUsers
                    .HasForeignKey(s => s.SourceUserId)
                    .OnDelete(DeleteBehavior.Cascade); // set to no action for SQL server
