@@ -22,7 +22,6 @@ namespace API.Data
         {
             return await _context.Likes.FindAsync(sourceUserId, likedUserId);
         }
-        /// <summary> Get a list of users either (1) (predicate = "liked") whom a user has liked or (2) (predicate = "likedBy") who have liked a particular user. </summary>
         public async Task<PagedList<LikeDto>> GetUserLikes(LikesParams likesParams)
         {
             var users = _context.Users.OrderBy(u => u.UserName).AsQueryable();

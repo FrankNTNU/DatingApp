@@ -41,7 +41,7 @@ namespace API.Data
         {
             return await _context.Connections.FindAsync(connectionId);
         }
-
+        // get the group and its connections
         public async Task<Group> GetGroupForConnection(string connectionId)
         {
             return await _context.Groups.Include(c => c.Connections)
@@ -67,59 +67,61 @@ namespace API.Data
         {
             var query = _context.Messages
                 .OrderByDescending(m => m.MessageSent)
+                .ProjectTo<MessageDto>(_mapper.ConfigurationProvider)
                 .AsQueryable();
 
             query = messageParams.Container switch
             {
-                "Inbox" => query.Where(u => u.Recipient.UserName == messageParams.Username
-                                            && !u.RecipentDeleted),
-                "Outbox" => query.Where(u => u.Sender.UserName == messageParams.Username
+                "Inbox" => query.Where(u => u.RecipientUsername == messageParams.Username
+                                            && !u.RecipientDeleted),
+                "Outbox" => query.Where(u => u.SenderUsername == messageParams.Username
                                              && !u.SenderDeleted),
-                _ => query.Where(u => u.Recipient.UserName == messageParams.Username
+                _ => query.Where(u => u.RecipientUsername == messageParams.Username
                                       && u.DateRead == null
-                                      && u.RecipentDeleted) // "Unread" case
+                                      && u.RecipientDeleted) // "Unread" case
             };
-
-            var messages = query.ProjectTo<MessageDto>(_mapper.ConfigurationProvider);
-            return await PagedList<MessageDto>.CreateAsync(messages, messageParams.PageNumber, messageParams.PageSize);
+            
+            return await PagedList<MessageDto>.CreateAsync(query, messageParams.PageNumber, messageParams.PageSize);
         }
-        // get the conversation
+        // get the conversation (the current user and the other person)
         public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string recipientUsername)
         {
             // get the messages (and their photos) between two users
             var messages = await _context.Messages
-                .Include(u => u.Sender).ThenInclude(p => p.Photos)
-                .Include(u => u.Recipient).ThenInclude(p => p.Photos)
                 .Where(m =>
-                    m.Recipient.UserName == currentUsername && !m.RecipentDeleted && m.SenderUsername == recipientUsername ||
-                    m.Recipient.UserName == recipientUsername && m.Sender.UserName == currentUsername && !m.SenderDeleted
+                    // get the messages only for the current user AND that the current user has not deleted
+                    m.Recipient.UserName == currentUsername && !m.RecipientDeleted &&
+                     // and get the messages that have been sent by the other person (recipient)
+                     m.SenderUsername == recipientUsername ||
+                    // or messages that have been sent by the current user AND that the current user has not deleted 
+                    m.Sender.UserName == currentUsername && !m.SenderDeleted &&
+                    // and get the messages that are for the other person (recipient)
+                    m.Recipient.UserName == recipientUsername
                 )
                 .OrderBy(m => m.MessageSent)
+                .ProjectTo<MessageDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
             // mark the unread messages that are for this current user
             var unreadMessages = messages
-                .Where(m => m.DateRead == null && m.Recipient.UserName == currentUsername)
+                // only mark the messages that are for the current user
+                .Where(m => m.DateRead == null && m.RecipientUsername == currentUsername)
                 .ToList();
+            // check to see if there is any unread messages
             if (unreadMessages.Any())
             {
+                // loop through those unread messages
                 foreach (var message in unreadMessages)
                 {
-                    message.DateRead = DateTime.UtcNow;
+                    message.DateRead = DateTime.UtcNow; // mark the local date time
                 }
-                await _context.SaveChangesAsync();
             }
-            return _mapper.Map<IEnumerable<MessageDto>>(messages);
+            return messages;
         }
 
         public void RemoveConnection(Connection connection)
         {
             _context.Connections.Remove(connection);
-        }
-
-        public async Task<bool> SaveAllAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

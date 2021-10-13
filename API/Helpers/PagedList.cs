@@ -24,8 +24,8 @@ namespace API.Helpers
         public static async Task<PagedList<T>> CreateAsync(IQueryable<T> source, int pageNumber, int pageSize)
         {
             var count = await source.CountAsync(); // make a call do db
-            var item = await source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(); // execute the query
-            return new PagedList<T>(item, count, pageNumber, pageSize);
+            var items = await source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync(); // execute the query
+            return new PagedList<T>(items, count, pageNumber, pageSize);
         }
     }
 }
